@@ -1,9 +1,10 @@
 package com.bastien.bankop.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
@@ -17,7 +18,8 @@ public class Keyword {
     @Column(name = "id_parent", nullable = false)
     private Long idParent;
 
-    public Keyword() {}
+    public Keyword() {
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -1,7 +1,5 @@
 package com.bastien.bankop.requests;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.LocalDate;
 import java.util.Optional;
 

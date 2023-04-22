@@ -1,7 +1,6 @@
 package com.bastien.bankop.services;
 
 import com.bastien.bankop.entities.Operation;
-import com.bastien.bankop.entities.Table;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

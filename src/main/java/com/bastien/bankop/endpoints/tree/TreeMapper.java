@@ -11,7 +11,6 @@ import com.bastien.bankop.entities.Operation;
 import com.bastien.bankop.entities.Table;
 import com.bastien.bankop.utils.BankopUtils;
 import com.bastien.bankop.utils.TableID;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
