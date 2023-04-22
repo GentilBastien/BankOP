@@ -1,10 +1,10 @@
 package com.bastien.bankop.controllers;
 
+import com.bastien.bankop.dto.KeywordDTO;
 import com.bastien.bankop.entities.Keyword;
 import com.bastien.bankop.exceptions.KeywordNameException;
-import com.bastien.bankop.exceptions.MalFormedRequestException;
+import com.bastien.bankop.exceptions.MalFormedDTOException;
 import com.bastien.bankop.exceptions.NoKeywordFoundException;
-import com.bastien.bankop.requests.KeywordRequest;
 import com.bastien.bankop.services.KeywordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -73,16 +73,16 @@ public class KeywordController {
      * valid KeywordRequest must contain a name and a parent. Also tests the validity of the name. No tests are
      * performed on the parent id. A keyword may have a parent id that is not in the database.
      *
-     * @param request The <code>KeywordRequest</code> used to create a new <code>Keyword</code>.
+     * @param keywordDTO The <code>KeywordDTO</code> used to create a new <code>Keyword</code>.
      * @throws NullPointerException      if the request is null.
-     * @throws MalFormedRequestException if the request does not contain a name or a parent id.
+     * @throws MalFormedDTOException if the request does not contain a name or a parent id.
      * @throws KeywordNameException      if the name is invalid.
      */
     @PostMapping(path = "/post")
-    public void registerKeyword(@RequestBody KeywordRequest request) {
-        Objects.requireNonNull(request, "The request is null.");
-        String name = request.keyword().orElseThrow(() -> new MalFormedRequestException("keyword."));
-        Long idParent = request.idParent().orElseThrow(() -> new MalFormedRequestException("parent id."));
+    public void registerKeyword(@RequestBody KeywordDTO keywordDTO) {
+        Objects.requireNonNull(keywordDTO, "The dto is null.");
+        String name = keywordDTO.getName().orElseThrow(() -> new MalFormedDTOException("keyword."));
+        Long idParent = keywordDTO.getIdParent().orElseThrow(() -> new MalFormedDTOException("parent id."));
 
         Keyword keyword = new Keyword();
         keyword.setKeyword(name);
@@ -136,5 +136,14 @@ public class KeywordController {
                 id,
                 keywords.stream().map(this::getKeyword).toList()
         );
+    }
+
+    ///////////////////////////////////////
+    //          Keyword MAPPER           //
+    ///////////////////////////////////////
+
+    public KeywordDTO mapToDTO(String id) {
+        Keyword keyword = this.getKeyword(id);
+        return new KeywordDTO(id, keyword.getIdParent());
     }
 }

@@ -7,9 +7,12 @@ INSERT INTO tables (id, id_parent, name) VALUES (5, 4, 'carrefour');
 INSERT INTO tables (id, id_parent, name) VALUES (6, 4, 'leclerc');
 INSERT INTO tables (id, id_parent, name) VALUES (7, 4, 'monoprix');
 INSERT INTO tables (id, id_parent, name) VALUES (8, 4, 'auchan');
+
+
 INSERT INTO keywords (keyword, id_parent) VALUES ('CARREFOUREXPRESS', 5);
 INSERT INTO keywords (keyword, id_parent) VALUES ('CARREFOURDRIVE', 5);
 INSERT INTO keywords (keyword, id_parent) VALUES ('CARREFOURPLUS', 5);
+INSERT INTO keywords (keyword, id_parent) VALUES ('LECLERCMARKET', 6);
 
 
 INSERT INTO operations (id, id_mother, id_parent, date, label, price, manually_categorized) VALUES (0, NULL, 3, '2022-05-02', 'VIR VIREMENT CREATION COMPTE', 60.0, 0);

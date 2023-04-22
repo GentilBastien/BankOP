@@ -3,9 +3,7 @@ package com.bastien.bankop.endpoints.tree;
 import com.bastien.bankop.controllers.KeywordController;
 import com.bastien.bankop.controllers.OperationController;
 import com.bastien.bankop.controllers.TableController;
-import com.bastien.bankop.dto.OperationDTO;
-import com.bastien.bankop.dto.TreeDTO;
-import com.bastien.bankop.dto.TreeNodeDTO;
+import com.bastien.bankop.dto.*;
 import com.bastien.bankop.entities.Keyword;
 import com.bastien.bankop.entities.Operation;
 import com.bastien.bankop.entities.Table;
@@ -36,18 +34,17 @@ public class TreeMapper {
     }
 
     private TreeNodeDTO buildTreeNode(Long tableId) {
-        String tableName = this.tableController.getTable(tableId).getName();
-        List<String> keywords = this.keywordController.listKeywordsFromTableId(tableId)
+        TableDTO tableDTO = this.tableController.mapToDTO(tableId);
+
+        List<KeywordDTO> keywords = this.keywordController.listKeywordsFromTableId(tableId)
                 .stream()
                 .map(Keyword::getKeyword)
+                .map(this.keywordController::mapToDTO)
                 .toList();
         List<OperationDTO> operations = this.operationController.listOperationsFromTableId(tableId)
                 .stream()
                 .map(Operation::getId)
-                .map(id -> {
-                    Operation o = this.operationController.getOperation(id);
-                    return new OperationDTO(o.getDate(), o.getLabel(), o.getPrice(), tableName);
-                })
+                .map(this.operationController::mapToDTO)
                 .toList();
         List<TreeNodeDTO> children =
                 this.tableController.listChildrenFromTableId(tableId)
@@ -56,7 +53,7 @@ public class TreeMapper {
                         .map(this::buildTreeNode)
                         .toList();
         return new TreeNodeDTO(
-                tableName,
+                tableDTO,
                 BankopUtils.emptyListToNull(keywords),
                 BankopUtils.emptyListToNull(operations),
                 BankopUtils.emptyListToNull(children));

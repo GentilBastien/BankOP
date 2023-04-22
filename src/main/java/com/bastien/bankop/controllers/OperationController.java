@@ -1,9 +1,9 @@
 package com.bastien.bankop.controllers;
 
+import com.bastien.bankop.dto.OperationDTO;
 import com.bastien.bankop.entities.Operation;
-import com.bastien.bankop.exceptions.MalFormedRequestException;
+import com.bastien.bankop.exceptions.MalFormedDTOException;
 import com.bastien.bankop.exceptions.NoOperationFoundException;
-import com.bastien.bankop.requests.OperationRequest;
 import com.bastien.bankop.services.OperationService;
 import com.bastien.bankop.utils.TableID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,22 +64,22 @@ public class OperationController {
      *     <li>The manuallyCategorized property is by default set to false.</li>
      * </ul>
      *
-     * @param request The body of request payload.
+     * @param dto The body of request payload.
      * @throws NullPointerException      if the request is null.
-     * @throws MalFormedRequestException if the request does not contain a date, a label, or a price.
+     * @throws MalFormedDTOException if the request does not contain a date, a label, or a price.
      * @throws IllegalStateException     if <code>Operation</code> refers to an operation that has sub-operations
      *                                   already.
      * @throws NoOperationFoundException if the <code>Operation</code> to refer to (as a mother operation) is not
      *                                   found.
      */
     @PostMapping(path = "/post")
-    public void registerOperation(@RequestBody OperationRequest request) {
-        Objects.requireNonNull(request, "The request is null.");
-        Long idParent = request.idParent().orElse(TableID.VIDE);
-        LocalDate date = request.date().orElseThrow(() -> new MalFormedRequestException("date."));
-        String label = request.label().orElseThrow(() -> new MalFormedRequestException("label."));
-        Double price = request.price().orElseThrow(() -> new MalFormedRequestException("price."));
-        Boolean manuallyCategorized = request.manuallyCategorized().orElse(false);
+    public void registerOperation(@RequestBody OperationDTO dto) {
+        Objects.requireNonNull(dto, "The dto is null.");
+        Long idParent = dto.getIdParent().orElse(TableID.VIDE);
+        LocalDate date = dto.getDate().orElseThrow(() -> new MalFormedDTOException("date."));
+        String label = dto.getLabel().orElseThrow(() -> new MalFormedDTOException("label."));
+        Double price = dto.getPrice().orElseThrow(() -> new MalFormedDTOException("price."));
+        Boolean manuallyCategorized = dto.getManuallyCategorized().orElse(false);
 
         Operation operation = new Operation();
         operation.setIdMother(null);
@@ -125,25 +125,25 @@ public class OperationController {
      * Update one or more fields of an operation. Important note: null fields mean that no changes is intended. It does
      * not mean that the field new value will be null.
      *
-     * @param request The body of the operation request payload. All fields are optional except the id field.
+     * @param dto The body of the operation request payload. All fields are optional except the id field.
      * @throws NullPointerException      if the request is null.
-     * @throws MalFormedRequestException if the request does not contain an operation to update.
+     * @throws MalFormedDTOException if the request does not contain an operation to update.
      * @throws NoOperationFoundException if the id does not refer to an existing operation.
      * @throws IllegalStateException     if the id table to update is one of the immutable tables or if the new id
      *                                   parent makes a circular reference.
      */
     @PutMapping(path = "/put")
-    public void updateOperation(@RequestBody OperationRequest request) {
-        Objects.requireNonNull(request, "The request is null.");
-        Long id = request.id().orElseThrow(() -> new MalFormedRequestException("id."));
+    public void updateOperation(@RequestBody OperationDTO dto) {
+        Objects.requireNonNull(dto, "The dto is null.");
+        Long id = dto.getId().orElseThrow(() -> new MalFormedDTOException("id."));
         Operation operation = this.getOperation(id);
 
-        Long idMother = request.idMother().orElse(null);
-        Long idParent = request.idParent().orElse(null);
-        LocalDate date = request.date().orElse(null);
-        String label = request.label().orElse(null);
-        Double price = request.price().orElse(null);
-        Boolean manuallyCategorized = request.manuallyCategorized().orElse(null);
+        Long idMother = dto.getIdMother().orElse(null);
+        Long idParent = dto.getIdParent().orElse(null);
+        LocalDate date = dto.getDate().orElse(null);
+        String label = dto.getLabel().orElse(null);
+        Double price = dto.getPrice().orElse(null);
+        Boolean manuallyCategorized = dto.getManuallyCategorized().orElse(null);
 
         if (idMother != null)
             operation.setIdMother(idMother);
@@ -159,5 +159,22 @@ public class OperationController {
             operation.setManuallyCategorized(manuallyCategorized);
 
         this.operationService.saveOperation(operation);
+    }
+
+    /////////////////////////////////////////
+    //          Operation MAPPER           //
+    /////////////////////////////////////////
+
+    public OperationDTO mapToDTO(Long id) {
+        Operation o = this.getOperation(id);
+        return new OperationDTO(
+                id,
+                o.getIdParent(),
+                o.getIdMother(),
+                o.getDate(),
+                o.getLabel(),
+                o.getPrice(),
+                o.getManuallyCategorized()
+        );
     }
 }

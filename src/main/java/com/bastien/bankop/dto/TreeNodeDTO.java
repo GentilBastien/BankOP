@@ -3,8 +3,8 @@ package com.bastien.bankop.dto;
 import java.util.List;
 
 public record TreeNodeDTO(
-        String tableName,
-        List<String> keywords,
+        TableDTO tableDTO,
+        List<KeywordDTO> keywords,
         List<OperationDTO> operations,
         List<TreeNodeDTO> children
 ) {
