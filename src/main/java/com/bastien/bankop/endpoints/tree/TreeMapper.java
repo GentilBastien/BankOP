@@ -46,7 +46,7 @@ public class TreeMapper {
                 .map(Operation::getId)
                 .map(id -> {
                     Operation o = this.operationController.getOperation(id);
-                    return new OperationDTO(o.getDate(), o.getLabel(), o.getPrice());
+                    return new OperationDTO(o.getDate(), o.getLabel(), o.getPrice(), tableName);
                 })
                 .toList();
         List<TreeNodeDTO> children =

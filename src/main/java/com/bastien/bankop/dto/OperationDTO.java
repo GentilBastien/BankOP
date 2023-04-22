@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public record OperationDTO(
         LocalDate date,
         String label,
-        Double price
+        Double price,
+        String tableName
 ) {
 }
