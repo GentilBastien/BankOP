@@ -130,15 +130,24 @@ public class TableServiceDB implements TableService {
         Long id = table.getId();
         String name = table.getName();
 
-        if (id.equals(TableID.ROOT) || id.equals(TableID.SCINDES) || id.equals(TableID.VIDE))
-            throw new IllegalStateException("Cannot update this table.");
+        if (id != null) {
+            if (id.equals(TableID.ROOT) || id.equals(TableID.SCINDES) || id.equals(TableID.VIDE))
+                throw new IllegalStateException("Cannot update this table.");
+        }
 
-        this.checkNameExists(name);
         this.checkValidName(name);
         this.getTable(table.getIdParent());
-        this.checkCircularReference(id);
 
-        this.tableRepository.save(table);
+        try {
+            this.tableRepository.save(table);
+            this.checkCircularReference(id);
+        } catch (IllegalStateException e) {
+            table.setIdParent(TableID.VIDE);
+            this.tableRepository.save(table);
+            throw new IllegalStateException(
+                    "table id(" + id + ") update leads to a circular reference. Table parent has been set to VIDE.");
+        }
+
     }
 
     @Override

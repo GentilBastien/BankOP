@@ -172,10 +172,11 @@ public class TableController {
         Table t = this.getTable(id);
         if (idParent != null && !idParent.equals(t.getIdParent()))
             t.setIdParent(idParent);
-        if (name != null)
+        if (name != null && !name.equals(t.getName())) {
+            this.tableService.checkNameExists(name);
             t.setName(name);
-
-        tableService.saveTable(t);
+        }
+        this.tableService.saveTable(t);
     }
 
     /////////////////////////////////////

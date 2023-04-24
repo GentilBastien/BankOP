@@ -76,13 +76,14 @@ public class OperationController {
     public void registerOperation(@RequestBody OperationDTO dto) {
         Objects.requireNonNull(dto, "The dto is null.");
         Long idParent = dto.getIdParent().orElse(TableID.VIDE);
+        Long idMother = dto.getIdMother().orElse(null);
         LocalDate date = dto.getDate().orElseThrow(() -> new MalFormedDTOException("date."));
         String label = dto.getLabel().orElseThrow(() -> new MalFormedDTOException("label."));
         Double price = dto.getPrice().orElseThrow(() -> new MalFormedDTOException("price."));
         Boolean manuallyCategorized = dto.getManuallyCategorized().orElse(false);
 
         Operation operation = new Operation();
-        operation.setIdMother(null);
+        operation.setIdMother(idMother);
         operation.setIdParent(idParent);
         operation.setDate(date);
         operation.setLabel(label);

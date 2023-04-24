@@ -20,13 +20,13 @@ public class TableDTO {
 
     public TableDTO(Long idParent, String name) {
         this.id = null;
-        this.idParent = Objects.requireNonNull(idParent);
+        this.idParent = idParent;
         this.name = Objects.requireNonNull(name);
     }
 
     public TableDTO(Long id, Long idParent, String name) {
         this.id = Objects.requireNonNull(id);
-        this.idParent = Objects.requireNonNull(idParent);
+        this.idParent = idParent;
         this.name = Objects.requireNonNull(name);
     }
 

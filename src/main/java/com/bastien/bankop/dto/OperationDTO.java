@@ -42,7 +42,7 @@ public class OperationDTO {
 
     public OperationDTO(Long idParent, LocalDate date, String label, Double price) {
         this.id = null;
-        this.idParent = Objects.requireNonNull(idParent);
+        this.idParent = idParent;
         this.idMother = null;
         this.date = Objects.requireNonNull(date);
         this.label = Objects.requireNonNull(label);
@@ -53,24 +53,24 @@ public class OperationDTO {
     public OperationDTO(Long idParent, Long idMother, LocalDate date, String label, Double price,
                         Boolean manuallyCategorized) {
         this.id = null;
-        this.idParent = Objects.requireNonNull(idParent);
-        this.idMother = Objects.requireNonNull(idMother);
+        this.idParent = idParent;
+        this.idMother = idMother;
         this.date = Objects.requireNonNull(date);
         this.label = Objects.requireNonNull(label);
         this.price = Objects.requireNonNull(price);
-        this.manuallyCategorized = Objects.requireNonNull(manuallyCategorized);
+        this.manuallyCategorized = manuallyCategorized;
     }
 
     public OperationDTO(
             Long id, Long idParent, Long idMother, LocalDate date, String label, Double price,
             Boolean manuallyCategorized) {
-        this.id = Objects.requireNonNull(id);
-        this.idParent = Objects.requireNonNull(idParent);
-        this.idMother = Objects.requireNonNull(idMother);
+        this.id = id;
+        this.idParent = idParent;
+        this.idMother = idMother;
         this.date = Objects.requireNonNull(date);
         this.label = Objects.requireNonNull(label);
         this.price = Objects.requireNonNull(price);
-        this.manuallyCategorized = Objects.requireNonNull(manuallyCategorized);
+        this.manuallyCategorized = manuallyCategorized;
     }
 
 

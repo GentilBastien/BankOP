@@ -4,6 +4,7 @@ import com.bastien.bankop.controllers.KeywordController;
 import com.bastien.bankop.controllers.OperationController;
 import com.bastien.bankop.controllers.TableController;
 import com.bastien.bankop.dto.TreeDTO;
+import com.bastien.bankop.mappers.TreeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

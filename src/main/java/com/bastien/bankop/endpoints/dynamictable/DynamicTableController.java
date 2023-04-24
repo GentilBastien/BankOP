@@ -3,6 +3,7 @@ package com.bastien.bankop.endpoints.dynamictable;
 import com.bastien.bankop.controllers.OperationController;
 import com.bastien.bankop.controllers.TableController;
 import com.bastien.bankop.dto.DynamicTableDTO;
+import com.bastien.bankop.mappers.DynamicTableMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

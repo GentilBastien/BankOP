@@ -1,4 +1,4 @@
-package com.bastien.bankop.endpoints.tree;
+package com.bastien.bankop.mappers;
 
 import com.bastien.bankop.controllers.KeywordController;
 import com.bastien.bankop.controllers.OperationController;

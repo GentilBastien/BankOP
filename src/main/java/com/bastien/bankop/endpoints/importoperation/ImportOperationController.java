@@ -4,12 +4,11 @@ import com.bastien.bankop.controllers.OperationClassifierController;
 import com.bastien.bankop.controllers.OperationController;
 import com.bastien.bankop.controllers.TableController;
 import com.bastien.bankop.dto.OperationDTO;
-import com.bastien.bankop.dto.TableDTO;
-import com.bastien.bankop.entities.Table;
+import com.bastien.bankop.dto.TreeTableDTO;
 import com.bastien.bankop.exceptions.MalFormedDTOException;
+import com.bastien.bankop.mappers.TreeTableMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,8 +17,11 @@ import java.util.List;
 public class ImportOperationController {
 
     private final OperationClassifierController operationClassifierController;
-    private final TableController tableController;
+
     private final OperationController operationController;
+
+    private final TreeTableMapper treeTableMapper;
+
 
     public ImportOperationController(
             @Autowired OperationClassifierController operationClassifierController,
@@ -27,8 +29,8 @@ public class ImportOperationController {
             @Autowired OperationController operationController
     ) {
         this.operationClassifierController = operationClassifierController;
-        this.tableController = tableController;
         this.operationController = operationController;
+        this.treeTableMapper = new TreeTableMapper(tableController);
     }
 
     public List<OperationDTO> reclassifyOperationDTO(List<OperationDTO> operationDTOList) {
@@ -45,15 +47,13 @@ public class ImportOperationController {
                 .toList();
     }
 
-    public List<TableDTO> listTableDTO() {
-        return this.tableController.listTables()
-                .stream()
-                .map(Table::getId)
-                .map(this.tableController::mapToDTO)
-                .toList();
+    @GetMapping
+    public TreeTableDTO mapTreeTable() {
+        return this.treeTableMapper.buildTreeTableDTO();
     }
 
-    public void push(List<OperationDTO> operationDTOList) {
+    @PostMapping
+    public void pushOperations(@RequestBody List<OperationDTO> operationDTOList) {
         operationDTOList.forEach(this.operationController::registerOperation);
     }
 }

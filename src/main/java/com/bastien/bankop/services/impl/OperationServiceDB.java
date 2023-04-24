@@ -53,14 +53,17 @@ public class OperationServiceDB implements OperationService {
     public void saveOperation(Operation operation) {
         Long id = operation.getId();
         if (this.hasSubOperations(id) && !operation.getIdParent().equals(TableID.SCINDES))
-            throw new IllegalStateException("operation id(" + id + ") has sub-operations and must be in SCINDES table.");
+            throw new IllegalStateException("operation with sub-operations must be in SCINDES table and can't be moved.");
         if (!this.hasSubOperations(id) && operation.getIdParent().equals(TableID.SCINDES))
-            throw new IllegalStateException("operation id(" + id + ") has no sub-operations and is in SCINDES table.");
+            throw new IllegalStateException("operation without sub-operations can't be moved into SCINDES table.");
+
         Long idMother = operation.getIdMother();
         if (idMother != null) {
+            if (this.hasSubOperations(id))
+                throw new IllegalStateException("operation cannot have a mother if it has already children.");
             Operation mother = this.getOperation(idMother);
             if (mother.getIdMother() != null)
-                throw new IllegalStateException("operation id(" + idMother + ") cannot be a mother operation of operation id(" + id + ") because it has already a mother.");
+                throw new IllegalStateException("operation cannot have a mother that is already a mother.");
             if (!mother.getIdParent().equals(TableID.SCINDES)) {
                 mother.setIdParent(TableID.SCINDES);
                 this.operationRepository.save(mother);

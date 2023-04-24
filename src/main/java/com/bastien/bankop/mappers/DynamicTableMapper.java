@@ -1,4 +1,4 @@
-package com.bastien.bankop.endpoints.dynamictable;
+package com.bastien.bankop.mappers;
 
 import com.bastien.bankop.controllers.OperationController;
 import com.bastien.bankop.controllers.TableController;
@@ -82,8 +82,8 @@ public class DynamicTableMapper {
 
 
         return new TableNodeYearDetailDTO(
-                tablePath,
                 tableName,
+                tablePath,
                 yearPrice,
                 monthPrices,
                 cumulatedYearPrice,
