@@ -1,36 +1,37 @@
 package com.bastien.bankop.mappers;
 
-import com.bastien.bankop.controllers.TableController;
-import com.bastien.bankop.dto.TableDTO;
 import com.bastien.bankop.dto.TreeTableDTO;
-import com.bastien.bankop.dto.TreeTableNodeDTO;
-import com.bastien.bankop.entities.Table;
+import com.bastien.bankop.dto.base.TableDTO;
+import com.bastien.bankop.entities.base.Table;
+import com.bastien.bankop.services.base.TableService;
 import com.bastien.bankop.utils.BankopUtils;
 import com.bastien.bankop.utils.TableID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-public class TreeTableMapper {
+@Component
+@RequiredArgsConstructor
+public class TreeTableMapper implements DTOVoidMapper<TreeTableDTO> {
 
-    private final TableController tableController;
+    private final TableService service;
 
-    public TreeTableMapper(TableController tableController) {
-        this.tableController = tableController;
+    @Override
+    public TreeTableDTO buildDTO() {
+        Table root = this.service.getEntityWithId(TableID.ROOT);
+        return new TreeTableDTO(this.buildTreeTable(root));
     }
 
-    public TreeTableDTO buildTreeTableDTO() {
-        return new TreeTableDTO(this.buildTreeTableNodeDTO(TableID.ROOT));
-    }
+    private TreeTableDTO.TableNode buildTreeTable(Table table) {
+        TableDTO tableDTO = this.service.toDTO(table);
 
-    private TreeTableNodeDTO buildTreeTableNodeDTO(Long tableId) {
-        TableDTO tableDTO = this.tableController.mapToDTO(tableId);
-        List<TreeTableNodeDTO> children = this.tableController.listChildrenFromTableId(tableId)
+        List<TreeTableDTO.TableNode> children = table.getTables()
                 .stream()
-                .map(Table::getId)
-                .map(this::buildTreeTableNodeDTO)
+                .map(this::buildTreeTable)
                 .toList();
 
-        return new TreeTableNodeDTO(
+        return new TreeTableDTO.TableNode(
                 tableDTO,
                 BankopUtils.emptyListToNull(children)
         );

@@ -1,58 +1,49 @@
 package com.bastien.bankop.mappers;
 
-import com.bastien.bankop.controllers.KeywordController;
-import com.bastien.bankop.controllers.OperationController;
-import com.bastien.bankop.controllers.TableController;
-import com.bastien.bankop.dto.*;
-import com.bastien.bankop.entities.Keyword;
-import com.bastien.bankop.entities.Operation;
-import com.bastien.bankop.entities.Table;
+import com.bastien.bankop.dto.TreeDTO;
+import com.bastien.bankop.dto.base.KeywordDTO;
+import com.bastien.bankop.dto.base.OperationDTO;
+import com.bastien.bankop.dto.base.TableDTO;
+import com.bastien.bankop.entities.base.Table;
+import com.bastien.bankop.services.base.KeywordService;
+import com.bastien.bankop.services.base.OperationService;
+import com.bastien.bankop.services.base.TableService;
 import com.bastien.bankop.utils.BankopUtils;
 import com.bastien.bankop.utils.TableID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-public class TreeMapper {
+@Component
+@RequiredArgsConstructor
+public class TreeMapper implements DTOVoidMapper<TreeDTO> {
 
-    private final TableController tableController;
+    private final TableService tableService;
+    private final KeywordService keywordService;
+    private final OperationService operationService;
 
-    private final KeywordController keywordController;
-
-    private final OperationController operationController;
-
-    public TreeMapper(
-            TableController tableController,
-            KeywordController keywordController,
-            OperationController operationController) {
-        this.tableController = tableController;
-        this.keywordController = keywordController;
-        this.operationController = operationController;
+    @Override
+    public TreeDTO buildDTO() {
+        Table root = this.tableService.getEntityWithId(TableID.ROOT);
+        return new TreeDTO(this.buildTreeNode(root));
     }
 
-    public TreeDTO buildTreeDTO() {
-        return new TreeDTO(this.buildTreeNode(TableID.ROOT));
-    }
-
-    private TreeNodeDTO buildTreeNode(Long tableId) {
-        TableDTO tableDTO = this.tableController.mapToDTO(tableId);
-
-        List<KeywordDTO> keywords = this.keywordController.listKeywordsFromTableId(tableId)
+    private TreeDTO.TreeNode buildTreeNode(Table table) {
+        TableDTO tableDTO = this.tableService.toDTO(table);
+        List<KeywordDTO> keywords = table.getKeywords()
                 .stream()
-                .map(Keyword::getKeyword)
-                .map(this.keywordController::mapToDTO)
+                .map(this.keywordService::toDTO)
                 .toList();
-        List<OperationDTO> operations = this.operationController.listOperationsFromTableId(tableId)
+        List<OperationDTO> operations = table.getOperations()
                 .stream()
-                .map(Operation::getId)
-                .map(this.operationController::mapToDTO)
+                .map(this.operationService::toDTO)
                 .toList();
-        List<TreeNodeDTO> children =
-                this.tableController.listChildrenFromTableId(tableId)
-                        .stream()
-                        .map(Table::getId)
-                        .map(this::buildTreeNode)
-                        .toList();
-        return new TreeNodeDTO(
+        List<TreeDTO.TreeNode> children = table.getTables()
+                .stream()
+                .map(this::buildTreeNode)
+                .toList();
+        return new TreeDTO.TreeNode(
                 tableDTO,
                 BankopUtils.emptyListToNull(keywords),
                 BankopUtils.emptyListToNull(operations),

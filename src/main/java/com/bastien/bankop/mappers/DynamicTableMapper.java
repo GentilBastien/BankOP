@@ -1,93 +1,95 @@
 package com.bastien.bankop.mappers;
 
-import com.bastien.bankop.controllers.OperationController;
-import com.bastien.bankop.controllers.TableController;
 import com.bastien.bankop.dto.DynamicTableDTO;
-import com.bastien.bankop.dto.TableNodeYearDetailDTO;
-import com.bastien.bankop.dto.TableYearDetailDTO;
-import com.bastien.bankop.entities.Operation;
-import com.bastien.bankop.entities.Table;
+import com.bastien.bankop.entities.base.Operation;
+import com.bastien.bankop.entities.base.Table;
+import com.bastien.bankop.services.base.TableService;
 import com.bastien.bankop.utils.BankopUtils;
 import com.bastien.bankop.utils.TableID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import java.time.Month;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-public class DynamicTableMapper {
+@Component
+@RequiredArgsConstructor
+public class DynamicTableMapper implements DTOVoidMapper<DynamicTableDTO> {
 
-    private final TableController tableController;
+    private final TableService tableService;
+    private final int MONTHS_IN_YEAR = Month.values().length;
 
-    private final OperationController operationController;
-
-    public DynamicTableMapper(
-            TableController tableController,
-            OperationController operationController) {
-        this.tableController = tableController;
-        this.operationController = operationController;
-    }
-
-    public DynamicTableDTO buildDynamicTableDTO(List<Integer> years) {
+    @Override
+    public DynamicTableDTO buildDTO() {
+        Table root = this.tableService.getEntityWithId(TableID.ROOT);
+        int minYear = this.getRangeYear(root, true);
+        int maxYear = this.getRangeYear(root, false);
         return new DynamicTableDTO(
-                years.stream()
-                        .map(year ->
-                                new TableYearDetailDTO(year,
-                                        this.buildTableNodeYearDetailDTO(TableID.ROOT, year)))
+                IntStream.range(minYear, maxYear)
+                        .mapToObj(year -> new DynamicTableDTO.Year(year, this.buildYearTable(root, year)))
                         .toList()
         );
     }
 
-    private TableNodeYearDetailDTO buildTableNodeYearDetailDTO(Long tableId, Integer year) {
-        List<TableNodeYearDetailDTO> childrenTemporalTableYear =
-                this.tableController.listChildrenFromTableId(tableId).stream()
-                        .map(Table::getId)
-                        .map(subtableId -> this.buildTableNodeYearDetailDTO(subtableId, year))
-                        .toList();
-
-        double[] sumMonthPricesFromChildren = new double[12];
-        Arrays.setAll(sumMonthPricesFromChildren, i ->
-                childrenTemporalTableYear.stream()
-                        .mapToDouble(temporalTableYear -> temporalTableYear.monthPrices()[i])
-                        .sum());
+    private DynamicTableDTO.YearTable buildYearTable(Table table, Integer year) {
+        List<DynamicTableDTO.YearTable> childrenYearTable = table.getTables()
+                .stream()
+                .map(subtableId -> this.buildYearTable(subtableId, year))
+                .toList();
+        double[] sumMonthPricesFromChildren = new double[MONTHS_IN_YEAR];
+        Arrays.setAll(sumMonthPricesFromChildren, i -> childrenYearTable
+                .stream()
+                .mapToDouble(yearTable -> yearTable.monthPrices()[i])
+                .sum());
         double sumYearPricesFromChildren = Arrays.stream(sumMonthPricesFromChildren).sum();
-
-
-        String tableName = this.tableController.getTable(tableId).getName();
-        String tablePath = this.tableController.listDepthPath(tableId)
+        String tableName = table.getName();
+        String tablePath = this.tableService.listDepthPath(table)
                 .stream()
                 .map(Table::getName)
                 .collect(Collectors.joining(" > "));
-
-        List<Operation> operationChildren = this.operationController.listOperationsFromTableId(tableId)
+        List<Operation> operationsYear = table.getOperations()
                 .stream()
                 .filter(op -> op.getDate().getYear() == year)
                 .toList();
-
-
-        double[] monthPrices = new double[12];
-        Arrays.setAll(monthPrices, i ->
-                operationChildren.stream()
-                        .filter(op -> op.getDate().getMonthValue() == i + 1)
-                        .mapToDouble(Operation::getPrice)
-                        .sum()
+        double[] monthPrices = new double[MONTHS_IN_YEAR];
+        Arrays.setAll(monthPrices, i -> operationsYear
+                .stream()
+                //Index 0 in array corresponds to January (1)
+                .filter(op -> op.getDate().getMonthValue() == i + 1)
+                .mapToDouble(Operation::getPrice)
+                .sum()
         );
+
         double yearPrice = Arrays.stream(monthPrices).sum();
-
-
         double cumulatedYearPrice = yearPrice + sumYearPricesFromChildren;
-        double[] cumulatedMonthPrices = IntStream.range(0, monthPrices.length)
+        double[] cumulatedMonthPrices = IntStream.range(0, MONTHS_IN_YEAR)
                 .mapToDouble(i -> monthPrices[i] + sumMonthPricesFromChildren[i])
                 .toArray();
-
-
-        return new TableNodeYearDetailDTO(
+        return new DynamicTableDTO.YearTable(
                 tableName,
                 tablePath,
                 yearPrice,
                 monthPrices,
                 cumulatedYearPrice,
                 cumulatedMonthPrices,
-                BankopUtils.emptyListToNull(childrenTemporalTableYear));
+                BankopUtils.emptyListToNull(childrenYearTable));
+    }
+
+    private int getRangeYear(Table root, boolean minimumRequired) {
+        Stream<Operation> operationStream = this.tableService.listAllChildrenFrom(root)
+                .stream()
+                .map(Table::getOperations)
+                .flatMap(Collection::stream);
+        Comparator<Operation> operationDateComparator = Comparator.comparing(Operation::getDate);
+        Operation operationDate = minimumRequired ?
+                operationStream.min(operationDateComparator).orElseThrow() :
+                operationStream.max(operationDateComparator).orElseThrow();
+        return operationDate.getDate().getYear();
     }
 }
