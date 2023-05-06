@@ -17,7 +17,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class TreeMapper implements DTOVoidMapper<TreeDTO> {
+public class TreeMapper implements DTOMapper<TreeDTO> {
 
     private final TableService tableService;
     private final KeywordService keywordService;

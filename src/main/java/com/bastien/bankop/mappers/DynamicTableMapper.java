@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
-public class DynamicTableMapper implements DTOVoidMapper<DynamicTableDTO> {
+public class DynamicTableMapper implements DTOMapper<DynamicTableDTO> {
 
     private final TableService tableService;
     private final int MONTHS_IN_YEAR = Month.values().length;

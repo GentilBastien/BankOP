@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class OperationMapper extends AbstractBaseEntityMapper<OperationDTO, Operation> {
 
-
     @Autowired
     public OperationMapper(TableRepository tableRepository, OperationRepository operationRepository) {
         super(tableRepository, operationRepository, OperationDTO.class, Operation.class);
