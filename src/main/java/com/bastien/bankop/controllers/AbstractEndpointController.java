@@ -13,7 +13,6 @@ public abstract class AbstractEndpointController<DTO extends GenericDTO> {
         this.mapper = mapper;
     }
 
-
     @GetMapping
     public @ResponseBody DTO getDTO() {
         return mapper.buildDTO();

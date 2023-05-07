@@ -8,6 +8,7 @@ import lombok.experimental.FieldNameConstants;
 
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.StringJoiner;
 
 @Getter
 @Setter
@@ -16,6 +17,20 @@ import java.util.Set;
 @FieldNameConstants
 @jakarta.persistence.Table(name = "operations")
 public class Operation extends AbstractBaseEntity {
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Operation.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("mother=" + mother)
+                .add("subOperations=" + subOperations)
+                .add("category=" + category)
+                .add("date=" + date)
+                .add("name='" + name + "'")
+                .add("price=" + price)
+                .add("manuallyCategorized=" + manuallyCategorized)
+                .toString();
+    }
 
     @Id
     @SequenceGenerator(name = "op_id_seq", sequenceName = "op_id_seq", initialValue = 100)

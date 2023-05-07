@@ -3,7 +3,7 @@ package com.bastien.bankop.controllers.base;
 import com.bastien.bankop.controllers.AbstractEntityController;
 import com.bastien.bankop.dto.base.TableDTO;
 import com.bastien.bankop.entities.base.Table;
-import com.bastien.bankop.services.base.AbstractBaseEntityService;
+import com.bastien.bankop.services.base.TableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TableController extends AbstractEntityController<TableDTO, Table, Long> {
 
     @Autowired
-    public TableController(AbstractBaseEntityService<TableDTO, Table> service) {
+    public TableController(TableService service) {
         super(service);
     }
 }

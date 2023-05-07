@@ -31,15 +31,15 @@ public class TableService extends AbstractBaseEntityService<TableDTO, Table> {
     }
 
     public boolean hasChildren(Table table) {
-        return !table.getTables().isEmpty();
+        return table.getTables() != null && !table.getTables().isEmpty();
     }
 
     public boolean hasOperations(Table table) {
-        return !table.getOperations().isEmpty();
+        return table.getOperations() != null && !table.getOperations().isEmpty();
     }
 
     public boolean hasKeywords(Table table) {
-        return !table.getKeywords().isEmpty();
+        return table.getKeywords() != null && !table.getKeywords().isEmpty();
     }
 
     @Override
@@ -59,8 +59,7 @@ public class TableService extends AbstractBaseEntityService<TableDTO, Table> {
     @Override
     protected void validateDTOBeforeUpdate(TableDTO dto) throws MalFormedDTOException {
         super.validateDTOBeforeUpdate(dto);
-        Long id = dto.getId().orElse(0L);
-        if (id.equals(TableID.ROOT) || id.equals(TableID.SCINDES) || id.equals(TableID.VIDE))
+        if (dto.getId().stream().anyMatch(id -> id.equals(TableID.ROOT) || id.equals(TableID.SCINDES) || id.equals(TableID.VIDE)))
             throw new MalFormedDTOException("Cannot update this table.");
         if (dto.getIdCategory().isPresent()) {
             Long idCategory = dto.getIdCategory().get();

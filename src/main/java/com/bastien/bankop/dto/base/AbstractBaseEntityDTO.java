@@ -1,12 +1,14 @@
 package com.bastien.bankop.dto.base;
 
 import com.bastien.bankop.dto.AbstractEntityDTO;
+import lombok.Setter;
 
 import java.util.Optional;
 
+@Setter
 public abstract class AbstractBaseEntityDTO extends AbstractEntityDTO<Long> {
-    private final Long idCategory;
-    private final String name;
+    private Long idCategory;
+    private String name;
 
     public AbstractBaseEntityDTO(Long id, Long idCategory, String name) {
         super(id);

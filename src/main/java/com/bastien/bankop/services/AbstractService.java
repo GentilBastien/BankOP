@@ -8,7 +8,9 @@ import com.bastien.bankop.exceptions.NoEntityFoundException;
 import com.bastien.bankop.mappers.EntityMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractService<DTO extends AbstractEntityDTO<ID>, ENT extends AbstractEntity<ID>, ID> {
 
@@ -51,8 +53,8 @@ public abstract class AbstractService<DTO extends AbstractEntityDTO<ID>, ENT ext
         return this.repository.findById(id).orElseThrow(NoEntityFoundException::new);
     }
 
-    public List<ENT> getEntities() {
-        return this.repository.findAll();
+    public Set<ENT> getEntities() {
+        return new HashSet<>(this.repository.findAll());
     }
 
     public void saveEntity(DTO dto) {

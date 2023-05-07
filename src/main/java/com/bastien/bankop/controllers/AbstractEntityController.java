@@ -5,7 +5,8 @@ import com.bastien.bankop.entities.AbstractEntity;
 import com.bastien.bankop.services.AbstractService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class AbstractEntityController<DTO extends AbstractEntityDTO<ID>, ENT extends AbstractEntity<ID>, ID> {
@@ -24,11 +25,11 @@ public class AbstractEntityController<DTO extends AbstractEntityDTO<ID>, ENT ext
     }
 
     @GetMapping
-    public @ResponseBody List<DTO> getAll() {
+    public @ResponseBody Set<DTO> getAll() {
         return this.service.getEntities()
                 .stream()
                 .map(this.service::toDTO)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @PostMapping

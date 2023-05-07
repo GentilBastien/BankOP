@@ -1,7 +1,10 @@
 package com.bastien.bankop.dto;
 
+import lombok.Setter;
+
 import java.util.Optional;
 
+@Setter
 public abstract class AbstractEntityDTO<ID>  implements GenericDTO {
     private final ID id;
 
