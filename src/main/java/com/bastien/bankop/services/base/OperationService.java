@@ -31,9 +31,9 @@ public class OperationService extends AbstractBaseEntityService<OperationDTO, Op
         return o.getSubOperations() != null && !o.getSubOperations().isEmpty();
     }
 
-    public List<OperationDTO> autoClassifyOperations(List<OperationDTO> operationDTOList) {
+    public List<OperationDTO> classifyOperationsByKeywords(List<OperationDTO> operationDTOList) {
         Set<Keyword> keywords = keywordService.getEntities();
-        operationDTOList.forEach(dto -> this.autoClassifyOperation(dto, keywords));
+        operationDTOList.forEach(dto -> this.classifyOperationsByKeywords(dto, keywords));
         return operationDTOList;
     }
 
@@ -71,13 +71,18 @@ public class OperationService extends AbstractBaseEntityService<OperationDTO, Op
     //            UTILS            //
     /////////////////////////////////
 
-    private void autoClassifyOperation(OperationDTO operationDTO, Set<Keyword> keywords) {
+    private void classifyOperationsByKeywords(OperationDTO operationDTO, Set<Keyword> keywords) {
         assert operationDTO.getName().isPresent();
         String name = operationDTO.getName().get();
         Optional<Long> optionalIdCategory = keywords.stream()
-                .filter(keyword -> keyword.getName().equals(name))
-                .map(Keyword::getCategory)
+                .filter(keyword -> {
+                    String keywordName = keyword.getName();
+                    return keywordName.equals(name)
+                            || keywordName.contains(name)
+                            || name.contains(keywordName);
+                })
                 .findFirst()
+                .map(Keyword::getCategory)
                 .map(Table::getId);
         operationDTO.setIdCategory(optionalIdCategory.orElse(TableID.VIDE));
     }

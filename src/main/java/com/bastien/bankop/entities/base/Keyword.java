@@ -13,7 +13,7 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @jakarta.persistence.Table(name = "keywords")
 public class Keyword extends AbstractBaseEntity {
-
+    
     @Id
     @SequenceGenerator(name = "kw_id_seq", sequenceName = "kw_id_seq", initialValue = 100)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "kw_id_seq")

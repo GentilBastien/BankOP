@@ -28,14 +28,12 @@ public class OperationMapper extends AbstractBaseEntityMapper<OperationDTO, Oper
         if (dto.getManuallyCategorized().isPresent())
             superOp.setManuallyCategorized(dto.getManuallyCategorized().get());
         else if (dto.getId().isEmpty()) {
-            superOp.setManuallyCategorized(false); //no id and no id mother -> save operation ; false must be set
+            superOp.setManuallyCategorized(false); //no id and no manually categorized -> save operation ; false must be set
         }
         if (dto.getDate().isPresent())
             superOp.setDate(dto.getDate().get());
         if (dto.getPrice().isPresent())
             superOp.setPrice(dto.getPrice().get());
-
-        System.out.println(superOp);
         return superOp;
     }
 

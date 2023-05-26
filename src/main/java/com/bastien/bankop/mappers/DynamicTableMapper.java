@@ -31,7 +31,7 @@ public class DynamicTableMapper implements DTOMapper<DynamicTableDTO> {
         int minYear = this.getRangeYear(root, true);
         int maxYear = this.getRangeYear(root, false);
         return new DynamicTableDTO(
-                IntStream.range(minYear, maxYear)
+                IntStream.rangeClosed(minYear, maxYear)
                         .mapToObj(year -> new DynamicTableDTO.Year(year, this.buildYearTable(root, year)))
                         .toList()
         );

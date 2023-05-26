@@ -1,6 +1,5 @@
 package com.bastien.bankop.controllers.base;
 
-import com.bastien.bankop.controllers.AbstractEntityController;
 import com.bastien.bankop.dto.base.OperationDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.services.base.OperationService;
@@ -14,15 +13,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/v1/operations")
-public class OperationController extends AbstractEntityController<OperationDTO, Operation, Long> {
+public class OperationController extends AbstractBaseEntityController<OperationDTO, Operation> {
+
+    private final OperationService service;
 
     @Autowired
     public OperationController(OperationService service) {
         super(service);
+        this.service = service;
     }
 
     @PostMapping(path = "auto-classify")
     public List<OperationDTO> autoClassifyOperations(@RequestBody List<OperationDTO> operationDTOList) {
-        return ((OperationService)this.service).autoClassifyOperations(operationDTOList);
+        return this.service.classifyOperationsByKeywords(operationDTOList);
     }
 }
