@@ -44,6 +44,7 @@ public abstract class AbstractBaseEntityMapper<DTO extends AbstractBaseEntityDTO
                 //save
                 ENT entityToSave = entClass.getDeclaredConstructor().newInstance();
                 Table category = this.tableRepository.findById(dto.getIdCategory().get()).orElseThrow(NoEntityFoundException::new);
+                assert category != null; //category can't be null if we save a new Base Entity
                 entityToSave.setCategory(category);
                 entityToSave.setName(dto.getName().get());
                 return entityToSave;

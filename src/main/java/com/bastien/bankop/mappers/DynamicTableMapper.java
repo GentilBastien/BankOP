@@ -4,19 +4,16 @@ import com.bastien.bankop.dto.DynamicTableDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.entities.base.Table;
 import com.bastien.bankop.services.base.TableService;
-import com.bastien.bankop.utils.BankopUtils;
 import com.bastien.bankop.utils.TableID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Month;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -28,68 +25,89 @@ public class DynamicTableMapper implements DTOMapper<DynamicTableDTO> {
     @Override
     public DynamicTableDTO buildDTO() {
         Table root = this.tableService.getEntityWithId(TableID.ROOT);
-        int minYear = this.getRangeYear(root, true);
-        int maxYear = this.getRangeYear(root, false);
+        int[] rangeYear = this.getRangeYear(root);
+        int[] years = new int[rangeYear[1] - rangeYear[0] + 1];
+        for (int i = rangeYear[1]; i >= rangeYear[0]; i--) {
+            years[rangeYear[1] - i] = i;
+        }
         return new DynamicTableDTO(
-                IntStream.rangeClosed(minYear, maxYear)
-                        .mapToObj(year -> new DynamicTableDTO.Year(year, this.buildYearTable(root, year)))
-                        .toList()
+                new DynamicTableDTO.TreePriceTable(buildPriceTable(root, years), years)
         );
     }
 
-    private DynamicTableDTO.YearTable buildYearTable(Table table, Integer year) {
-        List<DynamicTableDTO.YearTable> childrenYearTable = table.getTables()
+    private DynamicTableDTO.PriceTable buildPriceTable(Table table, int[] years) {
+        List<DynamicTableDTO.PriceTable> childrenPriceTable = table.getTables()
                 .stream()
-                .map(subtableId -> this.buildYearTable(subtableId, year))
+                .map(t -> buildPriceTable(t, years))
                 .toList();
-        double[] sumMonthPricesFromChildren = new double[MONTHS_IN_YEAR];
-        Arrays.setAll(sumMonthPricesFromChildren, i -> childrenYearTable
-                .stream()
-                .mapToDouble(yearTable -> yearTable.monthPrices()[i])
-                .sum());
-        double sumYearPricesFromChildren = Arrays.stream(sumMonthPricesFromChildren).sum();
         String tableName = table.getName();
-        String tablePath = this.tableService.listDepthPath(table)
+        int depth = tableService.listDepthPath(table).size();
+
+        double[][] monthYearPrices = new double[years.length][MONTHS_IN_YEAR];
+        double[] yearPrices = new double[years.length];
+
+        for (int yearIndex = 0; yearIndex < years.length; yearIndex++) {
+            yearPrices[yearIndex] = computesPrice(table, years[yearIndex], -1);
+            for (int monthIndex = 0; monthIndex < MONTHS_IN_YEAR; monthIndex++) {
+                monthYearPrices[yearIndex][monthIndex] = computesPrice(table, years[yearIndex], 12 - monthIndex);
+            }
+        }
+
+        double[][] childrenMonthYearPrices = childrenPriceTable
                 .stream()
-                .map(Table::getName)
-                .collect(Collectors.joining(" > "));
-        List<Operation> operationsYear = table.getOperations()
+                .map(DynamicTableDTO.PriceTable::cumulatedMonthYearPrices)
+                .reduce(this::sumMatrix)
+                .orElseGet(() -> new double[years.length][MONTHS_IN_YEAR]);
+
+        double[] childrenYearPrices = childrenPriceTable
+                .stream()
+                .map(DynamicTableDTO.PriceTable::cumulatedYearPrices)
+                .reduce(this::sumTable)
+                .orElseGet(() -> new double[years.length]);
+
+        double[][] cumulatedMonthYearPrices = sumMatrix(monthYearPrices, childrenMonthYearPrices);
+        double[] cumulatedYearPrices = sumTable(yearPrices, childrenYearPrices);
+        return new DynamicTableDTO.PriceTable(tableName, depth, yearPrices, monthYearPrices, cumulatedYearPrices, cumulatedMonthYearPrices, childrenPriceTable);
+    }
+
+
+    private double computesPrice(Table table, int year, int month) {
+        return table.getOperations()
                 .stream()
                 .filter(op -> op.getDate().getYear() == year)
-                .toList();
-        double[] monthPrices = new double[MONTHS_IN_YEAR];
-        Arrays.setAll(monthPrices, i -> operationsYear
-                .stream()
-                //Index 0 in array corresponds to January (1)
-                .filter(op -> op.getDate().getMonthValue() == i + 1)
+                .filter(op -> month == -1 || op.getDate().getMonthValue() == month)
                 .mapToDouble(Operation::getPrice)
-                .sum()
-        );
-
-        double yearPrice = Arrays.stream(monthPrices).sum();
-        double cumulatedYearPrice = yearPrice + sumYearPricesFromChildren;
-        double[] cumulatedMonthPrices = IntStream.range(0, MONTHS_IN_YEAR)
-                .mapToDouble(i -> monthPrices[i] + sumMonthPricesFromChildren[i])
-                .toArray();
-        return new DynamicTableDTO.YearTable(
-                tableName,
-                tablePath,
-                yearPrice,
-                monthPrices,
-                cumulatedYearPrice,
-                cumulatedMonthPrices,
-                BankopUtils.emptyListToNull(childrenYearTable));
+                .sum();
     }
 
-    private int getRangeYear(Table root, boolean minimumRequired) {
-        Stream<Operation> operationStream = this.tableService.listAllChildrenFrom(root)
-                .stream()
-                .map(Table::getOperations)
-                .flatMap(Collection::stream);
+    private double[][] sumMatrix(double[][] m1, double[][] m2) {
+        int rows = m1.length;
+        int cols = m1[0].length;
+        double[][] result = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                result[i][j] = m1[i][j] + m2[i][j];
+            }
+        }
+        return result;
+    }
+
+    private double[] sumTable(double[] t1, double[] t2) {
+        double[] result = new double[t1.length];
+        Arrays.setAll(result, (index) -> t1[index] + t2[index]);
+        return result;
+    }
+
+    private int[] getRangeYear(Table root) {
         Comparator<Operation> operationDateComparator = Comparator.comparing(Operation::getDate);
-        Operation operationDate = minimumRequired ?
-                operationStream.min(operationDateComparator).orElseThrow() :
-                operationStream.max(operationDateComparator).orElseThrow();
-        return operationDate.getDate().getYear();
+        LinkedList<Operation> operationStream = this.tableService.listAllChildrenFrom(root)
+                .stream()
+                .flatMap(table -> table.getOperations().stream())
+                .sorted(operationDateComparator)
+                .collect(Collectors.toCollection(LinkedList::new));
+        return new int[]{
+                operationStream.getFirst().getDate().getYear(),
+                operationStream.getLast().getDate().getYear()
+        };
     }
 }

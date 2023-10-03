@@ -41,7 +41,7 @@ public class AbstractEntityController<DTO extends AbstractEntityDTO<ID>, ENT ext
         this.service.updateEntity(dto);
     }
 
-    @DeleteMapping
+    @DeleteMapping(path = "/{id}")
     public void delete(@PathVariable ID id) {
         this.service.deleteEntity(id);
     }
