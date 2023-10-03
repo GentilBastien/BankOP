@@ -4,6 +4,7 @@ import com.bastien.bankop.dto.ReleveOperationDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.entities.base.Table;
 import com.bastien.bankop.services.base.OperationService;
+import com.bastien.bankop.utils.BankopUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +21,11 @@ public class ReleveOperationMapper implements DTOMapper<ReleveOperationDTO> {
 
     @Override
     public ReleveOperationDTO buildDTO() {
-        final ReleveOperationDTO.ReleveRow[] rows = this.operationService
+        final List<ReleveOperationDTO.ReleveRow> rows = this.operationService
                 .getEntities()
                 .stream()
                 .map(this::buildRow)
-                .toArray(ReleveOperationDTO.ReleveRow[]::new);
+                .toList();
         final Operation[] minMaxDate = sortAndGetMinMax(Comparator.comparing(Operation::getDate));
         final Operation[] minMaxPrice = sortAndGetMinMax(Comparator.comparing(Operation::getPrice));
         final LocalDate minDate = minMaxDate[0].getDate();
@@ -37,7 +38,7 @@ public class ReleveOperationMapper implements DTOMapper<ReleveOperationDTO> {
                 .distinct() //distinct tables not distinct names
                 .map(Table::getName)
                 .toArray(String[]::new);
-        return new ReleveOperationDTO(rows, minDate, maxDate, minPrice, maxPrice, categories);
+        return new ReleveOperationDTO(BankopUtils.emptyListToNull(rows), minDate, maxDate, minPrice, maxPrice, categories);
     }
 
     private Operation[] sortAndGetMinMax(Comparator<Operation> operationComparator) {

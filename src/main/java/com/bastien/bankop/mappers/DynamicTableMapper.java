@@ -4,6 +4,7 @@ import com.bastien.bankop.dto.DynamicTableDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.entities.base.Table;
 import com.bastien.bankop.services.base.TableService;
+import com.bastien.bankop.utils.BankopUtils;
 import com.bastien.bankop.utils.TableID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,7 @@ public class DynamicTableMapper implements DTOMapper<DynamicTableDTO> {
 
         double[][] cumulatedMonthYearPrices = sumMatrix(monthYearPrices, childrenMonthYearPrices);
         double[] cumulatedYearPrices = sumTable(yearPrices, childrenYearPrices);
-        return new DynamicTableDTO.PriceTable(tableName, depth, yearPrices, monthYearPrices, cumulatedYearPrices, cumulatedMonthYearPrices, childrenPriceTable);
+        return new DynamicTableDTO.PriceTable(tableName, depth, yearPrices, monthYearPrices, cumulatedYearPrices, cumulatedMonthYearPrices, BankopUtils.emptyListToNull(childrenPriceTable));
     }
 
 

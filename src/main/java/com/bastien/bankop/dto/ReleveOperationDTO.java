@@ -1,9 +1,10 @@
 package com.bastien.bankop.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record ReleveOperationDTO(
-        ReleveRow[] rows,
+        List<ReleveRow> rows,
         LocalDate minDate,
         LocalDate maxDate,
         Double minPrice,
