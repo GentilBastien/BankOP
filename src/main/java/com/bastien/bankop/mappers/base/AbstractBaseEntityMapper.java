@@ -68,7 +68,6 @@ public abstract class AbstractBaseEntityMapper<DTO extends AbstractBaseEntityDTO
                     );
         } catch (ReflectiveOperationException e) {
             System.err.println("reflective exception has occurred while converting entity to dto.");
-            e.printStackTrace();
         }
         return dto;
     }
@@ -80,7 +79,6 @@ public abstract class AbstractBaseEntityMapper<DTO extends AbstractBaseEntityDTO
             dto = dtoClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             System.err.println("reflective exception has occurred while building a dto.");
-            e.printStackTrace();
         }
         return dto;
     }

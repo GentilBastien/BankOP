@@ -4,7 +4,6 @@ import com.bastien.bankop.dto.ReleveOperationDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.entities.base.Table;
 import com.bastien.bankop.services.base.OperationService;
-import com.bastien.bankop.services.base.TableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,6 @@ import java.util.List;
 public class ReleveOperationMapper implements DTOMapper<ReleveOperationDTO> {
 
     private final OperationService operationService;
-    private final TableService tableService;
 
     @Override
     public ReleveOperationDTO buildDTO() {
