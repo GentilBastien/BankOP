@@ -56,3 +56,5 @@ INSERT INTO operations (id, id_mother, id_category, date, name, price, manually_
 VALUES (12, NULL, 7, '2023-07-02', 'ACHAT BOULAGERIE PAIN', -12.08, 0);
 INSERT INTO operations (id, id_mother, id_category, date, name, price, manually_categorized)
 VALUES (13, NULL, 5, '2023-02-02', 'PAYE BASTIEN APPLI BANCAIRE', 8050.0, 0);
+INSERT INTO operations (id, id_mother, id_category, date, name, price, manually_categorized)
+VALUES (14, NULL, 4, '2024-05-08', 'INFORMATION BANCAIRE NOUVELLE', 1227.0, 0);

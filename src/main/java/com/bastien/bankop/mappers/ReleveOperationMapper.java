@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ReleveOperationMapper implements DTOMapper<ReleveOperationDTO> {
+public class ReleveOperationMapper implements DTOBuilder<ReleveOperationDTO> {
 
     private final OperationService operationService;
 

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class TreeTableMapper implements DTOMapper<TreeTableDTO> {
+public class TreeTableMapper implements DTOBuilder<TreeTableDTO> {
 
     private final TableService service;
 

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class DynamicTableMapper implements DTOMapper<DynamicTableDTO> {
+public class DynamicTableMapper implements DTOBuilder<DynamicTableDTO> {
 
     private final TableService tableService;
     private final int MONTHS_IN_YEAR = Month.values().length;

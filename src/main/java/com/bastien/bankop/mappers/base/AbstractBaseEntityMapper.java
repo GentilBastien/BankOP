@@ -71,15 +71,4 @@ public abstract class AbstractBaseEntityMapper<DTO extends AbstractBaseEntityDTO
         }
         return dto;
     }
-
-    @Override
-    public DTO buildDTO() {
-        DTO dto = null;
-        try {
-            dto = dtoClass.getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            System.err.println("reflective exception has occurred while building a dto.");
-        }
-        return dto;
-    }
 }

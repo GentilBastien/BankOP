@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AbstractEntityController<DTO extends AbstractEntityDTO<ID>, ENT extends AbstractEntity<ID>, ID> {
+public abstract class AbstractEntityController<DTO extends AbstractEntityDTO<ID>, ENT extends AbstractEntity<ID>, ID> {
 
     protected final AbstractService<DTO, ENT, ID> service;
 

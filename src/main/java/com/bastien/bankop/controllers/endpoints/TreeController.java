@@ -1,4 +1,4 @@
-package com.bastien.bankop.controllers;
+package com.bastien.bankop.controllers.endpoints;
 
 import com.bastien.bankop.dto.TreeDTO;
 import com.bastien.bankop.mappers.TreeMapper;
