@@ -13,12 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class OperationService extends AbstractBaseEntityService<OperationDTO, Operation> {
 
-    private final KeywordService keywordService;
-
     @Autowired
     public OperationService(OperationRepository repo, OperationMapper mapper, KeywordService keywordService) {
         super(repo, mapper);
-        this.keywordService = keywordService;
     }
 
     public boolean hasSubOperations(Operation o) {
