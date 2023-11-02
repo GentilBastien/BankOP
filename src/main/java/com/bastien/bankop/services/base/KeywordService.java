@@ -7,6 +7,7 @@ import com.bastien.bankop.exceptions.MalFormedDTOException;
 import com.bastien.bankop.exceptions.MalFormedEntityException;
 import com.bastien.bankop.mappers.base.KeywordMapper;
 import com.bastien.bankop.repositories.base.KeywordRepository;
+import com.bastien.bankop.utils.TableID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,16 @@ public class KeywordService extends AbstractBaseEntityService<KeywordDTO, Keywor
 
     public List<Keyword> listKeywordsFromTable(Table table) {
         return List.copyOf(table.getKeywords());
+    }
+
+    public Long classifyLabelWithKeyword(String label) {
+        return getEntities()
+                .stream()
+                .filter(keyword -> keyword.getName().contains(label))
+                .findFirst()
+                .map(Keyword::getCategory)
+                .map(Table::getId)
+                .orElse(TableID.VIDE);
     }
 
     @Override

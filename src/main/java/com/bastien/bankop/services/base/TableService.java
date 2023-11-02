@@ -22,7 +22,7 @@ public class TableService extends AbstractBaseEntityService<TableDTO, Table> {
 
     public List<Table> listAllChildrenFrom(Table table) {
         List<Table> concatChildren = new LinkedList<>();
-        this.aggregateAllChildrenFromTableId(table, concatChildren);
+        this.aggregateAllChildrenFromTable(table, concatChildren);
         return concatChildren;
     }
 
@@ -96,10 +96,10 @@ public class TableService extends AbstractBaseEntityService<TableDTO, Table> {
         return this.listDepthPath(listParents);
     }
 
-    private void aggregateAllChildrenFromTableId(Table table, List<Table> concatChildren) {
+    private void aggregateAllChildrenFromTable(Table table, List<Table> concatChildren) {
         concatChildren.add(table);
         Set<Table> children = table.getTables();
-        children.forEach(child -> this.aggregateAllChildrenFromTableId(child, concatChildren));
+        children.forEach(child -> this.aggregateAllChildrenFromTable(child, concatChildren));
     }
 
     private void checkName(Table entity) {

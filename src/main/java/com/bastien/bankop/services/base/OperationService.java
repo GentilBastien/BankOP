@@ -1,9 +1,7 @@
 package com.bastien.bankop.services.base;
 
 import com.bastien.bankop.dto.base.OperationDTO;
-import com.bastien.bankop.entities.base.Keyword;
 import com.bastien.bankop.entities.base.Operation;
-import com.bastien.bankop.entities.base.Table;
 import com.bastien.bankop.exceptions.MalFormedDTOException;
 import com.bastien.bankop.exceptions.MalFormedEntityException;
 import com.bastien.bankop.mappers.base.OperationMapper;
@@ -11,10 +9,6 @@ import com.bastien.bankop.repositories.base.OperationRepository;
 import com.bastien.bankop.utils.TableID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class OperationService extends AbstractBaseEntityService<OperationDTO, Operation> {
@@ -31,11 +25,12 @@ public class OperationService extends AbstractBaseEntityService<OperationDTO, Op
         return o.getSubOperations() != null && !o.getSubOperations().isEmpty();
     }
 
-    public List<OperationDTO> classifyOperationsByKeywords(List<OperationDTO> operationDTOList) {
-        Set<Keyword> keywords = keywordService.getEntities();
-        operationDTOList.forEach(dto -> this.classifyOperationsByKeywords(dto, keywords));
-        return operationDTOList;
-    }
+//    public boolean existsWithDatabase(RequestImportOperationDTO dto) {
+//        return getEntities().stream().anyMatch(operation ->
+//                Objects.equals(operation.getDate().toString(), dto.date())
+//                        && Objects.equals(operation.getName(), dto.name())
+//                        && Objects.equals(operation.getPrice(), dto.price()));
+//    }
 
     @Override
     protected void validateEntity(Operation entity) throws MalFormedEntityException {
@@ -65,25 +60,5 @@ public class OperationService extends AbstractBaseEntityService<OperationDTO, Op
     protected void validateEntityBeforeDelete(Operation entity) throws IllegalStateException {
         if (this.hasSubOperations(entity))
             throw new IllegalStateException("Cannot delete operation with sub-operations.");
-    }
-
-    /////////////////////////////////
-    //            UTILS            //
-    /////////////////////////////////
-
-    private void classifyOperationsByKeywords(OperationDTO operationDTO, Set<Keyword> keywords) {
-        assert operationDTO.getName().isPresent();
-        String name = operationDTO.getName().get();
-        Optional<Long> optionalIdCategory = keywords.stream()
-                .filter(keyword -> {
-                    String keywordName = keyword.getName();
-                    return keywordName.equals(name)
-                            || keywordName.contains(name)
-                            || name.contains(keywordName);
-                })
-                .findFirst()
-                .map(Keyword::getCategory)
-                .map(Table::getId);
-        operationDTO.setIdCategory(optionalIdCategory.orElse(TableID.VIDE));
     }
 }
