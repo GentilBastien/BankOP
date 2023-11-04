@@ -27,11 +27,17 @@ public class OperationService extends AbstractBaseEntityService<OperationDTO, Op
 
     public void setDoublonsInDatabase(List<ResponseImportOperationDTO> list) {
         for (ResponseImportOperationDTO result : list) {
-            if (getEntities().stream().anyMatch(op ->
-                    ((OperationMapper) mapper).isOperationEqualsToOperationDto(op, result))) {
+            if (getEntities().stream().anyMatch(op -> this.isOperationEqualsToOperationDto(op, result))) {
                 result.setDoublon(ResponseImportOperationDTO.DATABASE);
             }
         }
+    }
+
+    public boolean isOperationEqualsToOperationDto(Operation op, ResponseImportOperationDTO dto) {
+        return dto.getCategoryId().equals(op.getCategory().getId())
+                && dto.getDate().equals(op.getDate())
+                && dto.getName().equals(op.getName())
+                && dto.getPrice().equals(op.getPrice());
     }
 
     @Override

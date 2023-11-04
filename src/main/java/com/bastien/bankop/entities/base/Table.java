@@ -17,8 +17,7 @@ import java.util.Set;
 public class Table extends AbstractBaseEntity {
 
     @Id
-    @SequenceGenerator(name = "table_id_seq", sequenceName = "table_id_seq", initialValue = 9)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "table_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
