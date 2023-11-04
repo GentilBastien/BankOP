@@ -1,5 +1,6 @@
 package com.bastien.bankop.services.base;
 
+import com.bastien.bankop.dto.ResponseImportOperationDTO;
 import com.bastien.bankop.dto.base.OperationDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.exceptions.MalFormedDTOException;
@@ -9,6 +10,8 @@ import com.bastien.bankop.repositories.base.OperationRepository;
 import com.bastien.bankop.utils.TableID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class OperationService extends AbstractBaseEntityService<OperationDTO, Operation> {
@@ -22,12 +25,14 @@ public class OperationService extends AbstractBaseEntityService<OperationDTO, Op
         return o.getSubOperations() != null && !o.getSubOperations().isEmpty();
     }
 
-//    public boolean existsWithDatabase(RequestImportOperationDTO dto) {
-//        return getEntities().stream().anyMatch(operation ->
-//                Objects.equals(operation.getDate().toString(), dto.date())
-//                        && Objects.equals(operation.getName(), dto.name())
-//                        && Objects.equals(operation.getPrice(), dto.price()));
-//    }
+    public void setDoublonsInDatabase(List<ResponseImportOperationDTO> list) {
+        for (ResponseImportOperationDTO result : list) {
+            if (getEntities().stream().anyMatch(op ->
+                    ((OperationMapper) mapper).isOperationEqualsToOperationDto(op, result))) {
+                result.setDoublon(ResponseImportOperationDTO.DATABASE);
+            }
+        }
+    }
 
     @Override
     protected void validateEntity(Operation entity) throws MalFormedEntityException {

@@ -28,10 +28,10 @@ public class ReleveOperationMapper implements DTOBuilder<ReleveOperationDTO> {
                 .toList();
         final Operation[] minMaxDate = sortAndGetMinMax(Comparator.comparing(Operation::getDate));
         final Operation[] minMaxPrice = sortAndGetMinMax(Comparator.comparing(Operation::getPrice));
-        final LocalDate minDate = minMaxDate[0].getDate();
-        final LocalDate maxDate = minMaxDate[1].getDate();
-        final Double minPrice = minMaxPrice[0].getPrice();
-        final Double maxPrice = minMaxPrice[1].getPrice();
+        final LocalDate minDate = minMaxDate.length > 0 ? minMaxDate[0].getDate() : null;
+        final LocalDate maxDate = minMaxDate.length > 0 ? minMaxDate[1].getDate() : null;
+        final Double minPrice = minMaxPrice.length > 0 ? minMaxPrice[0].getPrice() : null;
+        final Double maxPrice = minMaxPrice.length > 0 ? minMaxPrice[1].getPrice() : null;
         final String[] categories = this.operationService.getEntities()
                 .stream()
                 .map(Operation::getCategory)
@@ -42,10 +42,16 @@ public class ReleveOperationMapper implements DTOBuilder<ReleveOperationDTO> {
     }
 
     private Operation[] sortAndGetMinMax(Comparator<Operation> operationComparator) {
-        return new Operation[]{
-                Collections.min(List.copyOf(this.operationService.getEntities()), operationComparator),
-                Collections.max(List.copyOf(this.operationService.getEntities()), operationComparator)
-        };
+        final List<Operation> entities = List.copyOf(this.operationService.getEntities());
+        if (entities.isEmpty()) {
+            return new Operation[]{};
+        } else {
+            return new Operation[]{
+                    Collections.min(entities, operationComparator),
+                    Collections.max(entities, operationComparator)
+            };
+        }
+
     }
 
     private ReleveOperationDTO.ReleveRow buildRow(Operation operation) {

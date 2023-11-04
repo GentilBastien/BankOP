@@ -1,5 +1,6 @@
 package com.bastien.bankop.mappers.base;
 
+import com.bastien.bankop.dto.ResponseImportOperationDTO;
 import com.bastien.bankop.dto.base.OperationDTO;
 import com.bastien.bankop.entities.base.Operation;
 import com.bastien.bankop.exceptions.NoEntityFoundException;
@@ -45,5 +46,12 @@ public class OperationMapper extends AbstractBaseEntityMapper<OperationDTO, Oper
         dto.setPrice(entity.getPrice());
         dto.setManuallyCategorized(entity.getManuallyCategorized());
         return dto;
+    }
+
+    public boolean isOperationEqualsToOperationDto(Operation op, ResponseImportOperationDTO dto) {
+        return dto.getCategoryId().equals(op.getCategory().getId())
+                && dto.getDate().equals(op.getDate())
+                && dto.getName().equals(op.getName())
+                && dto.getPrice().equals(op.getPrice());
     }
 }

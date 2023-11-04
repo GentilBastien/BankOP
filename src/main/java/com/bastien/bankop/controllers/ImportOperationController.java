@@ -3,6 +3,7 @@ package com.bastien.bankop.controllers;
 import com.bastien.bankop.dto.RequestImportOperationDTO;
 import com.bastien.bankop.dto.ResponseImportOperationDTO;
 import com.bastien.bankop.mappers.ImportOperationMapper;
+import com.bastien.bankop.services.base.OperationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,38 +12,28 @@ import java.util.List;
 @RequestMapping(path = "/api/v1/import")
 public class ImportOperationController {
 
-
     private final ImportOperationMapper importOperationMapper;
+    private final OperationService operationService;
 
-    public ImportOperationController(ImportOperationMapper importOperationMapper) {
+    public ImportOperationController(ImportOperationMapper importOperationMapper, OperationService operationService) {
         this.importOperationMapper = importOperationMapper;
+        this.operationService = operationService;
     }
 
     @PostMapping
     public @ResponseBody List<ResponseImportOperationDTO> classifyNewOperations(@RequestBody List<RequestImportOperationDTO> requestImportOperationDTOList) {
-        return requestImportOperationDTOList.stream().map(importOperationMapper::mapTo).toList();
-//        return List.of(
-//                new ResponseImportOperationDTO(
-//                        ResponseImportOperationDTO.FILE,
-//                        LocalDate.of(2022, 5, 12),
-//                        "OPERATION MOCK 1OPERATION MOCK 1OPERATION MOCK 1",
-//                        -12.58,
-//                        "path 1"
-//                ),
-//                new ResponseImportOperationDTO(
-//                        ResponseImportOperationDTO.NONE,
-//                        LocalDate.of(2020, 12, 1),
-//                        "OPERATION MOCK 2OPERATION MOCK 2",
-//                        -108.01,
-//                        "path 1"
-//                ),
-//                new ResponseImportOperationDTO(
-//                        ResponseImportOperationDTO.DATABASE,
-//                        LocalDate.of(2019, 4, 19),
-//                        "OPERATION MOCK 3OPERATION MOCK 3OPERATION MOCK 3OPERATION MOCK 3",
-//                        69.00,
-//                        "path 2"
-//                )
-//        );
+        List<ResponseImportOperationDTO> responseImportOperationDTOList = requestImportOperationDTOList.stream()
+                .map(importOperationMapper::mapTo).toList();
+        setDoublonsInFile(responseImportOperationDTOList);
+        this.operationService.setDoublonsInDatabase(responseImportOperationDTOList);
+        return responseImportOperationDTOList;
+    }
+
+    private void setDoublonsInFile(List<ResponseImportOperationDTO> list) {
+        for (ResponseImportOperationDTO result : list) {
+            list.stream()
+                    .filter(a -> a != result && a.equals(result))
+                    .forEach(e -> e.setDoublon(ResponseImportOperationDTO.FILE));
+        }
     }
 }

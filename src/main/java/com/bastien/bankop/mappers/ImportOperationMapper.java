@@ -24,7 +24,6 @@ public class ImportOperationMapper implements DTOMapper<RequestImportOperationDT
         Double price = requestImportOperationDTO.price();
         Long categoryId = this.keywordService.classifyLabelWithKeyword(requestImportOperationDTO.name());
         String categoryName = tableService.getEntityWithId(categoryId).getName();
-        //TODO: doublons
-        return new ResponseImportOperationDTO("", date, name, price, categoryId, categoryName);
+        return new ResponseImportOperationDTO(ResponseImportOperationDTO.NONE, date, name, price, categoryId, categoryName);
     }
 }

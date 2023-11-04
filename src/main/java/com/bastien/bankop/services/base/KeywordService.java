@@ -28,7 +28,7 @@ public class KeywordService extends AbstractBaseEntityService<KeywordDTO, Keywor
     public Long classifyLabelWithKeyword(String label) {
         return getEntities()
                 .stream()
-                .filter(keyword -> keyword.getName().contains(label))
+                .filter(keyword -> label.contains(keyword.getName()))
                 .findFirst()
                 .map(Keyword::getCategory)
                 .map(Table::getId)
