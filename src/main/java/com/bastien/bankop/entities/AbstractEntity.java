@@ -12,6 +12,6 @@ public abstract class AbstractEntity<ID> {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof AbstractBaseEntity ba && Objects.equals(this.getId(), ba.getId());
+        return this == obj || (obj instanceof AbstractBaseEntity ba && Objects.equals(this.getId(), ba.getId()));
     }
 }
